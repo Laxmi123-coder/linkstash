@@ -75,7 +75,7 @@ const [activeTag, setActiveTag] = useState(null);
  if (!user) {
   return (
     <div>
-      <AuthForm onLogin={handleLogin} />
+      <AuthForm onLogin={handleLogin} onRegister={handleRegister} />
       {error && <p className="error-text" style={{ textAlign: "center" }}>{error}</p>}
     </div>
   );
