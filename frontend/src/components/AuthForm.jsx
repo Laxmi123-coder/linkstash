@@ -20,7 +20,7 @@ function AuthForm({ onLogin, onRegister }) {
         <h1>LinkStash</h1>
         <p>{mode === "login" ? "Log in to your account" : "Create a new account"}</p>
 
-        <AuthForm onLogin={handleSubmit} onRegister={handleRegister} />
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Email"
