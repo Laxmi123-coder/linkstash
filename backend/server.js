@@ -16,6 +16,15 @@ app.get("/", (req, res) => {
   res.json({ status: "LinkStash API is running" });
 });
 
+ app.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json({ dbTime: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  });
+
 app.use("/api/auth", authRoutes);
 app.use("/api/links", linkRoutes);
 
