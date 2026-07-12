@@ -1,4 +1,4 @@
-const BASE_URL = "http://linkstash-backend.onrender.com/api";
+const BASE_URL = "https://linkstash-backend.onrender.com/api";
 
 export async function loginUser(email, password) {
   const response = await fetch(`${BASE_URL}/auth/login`, {
