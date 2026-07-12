@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AuthForm from "./components/AuthForm";
 import AddLinkForm from "./components/AddLinkForm";
 import LinkCard from "./components/LinkCard";
-import { loginUser, getLinks, addLink, deleteLink } from "./api";
+import { loginUser,registerUser, getLinks, addLink, deleteLink } from "./api";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -23,6 +23,18 @@ const [activeTag, setActiveTag] = useState(null);
       setError(err.message);
     }
   }
+
+
+  async function handleRegister(email, password) {
+  setError("");
+  try {
+    const data = await registerUser(email, password);
+    localStorage.setItem("token", data.token);
+    setUser(data.user);
+  } catch (err) {
+    setError(err.message);
+  }
+}
 
   function handleLogout() {
     localStorage.removeItem("token");
