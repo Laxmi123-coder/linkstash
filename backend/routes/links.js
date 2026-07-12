@@ -11,27 +11,39 @@ router.use(requireAuth);
 // GET /api/links  → list all of the logged-in user's saved links
 router.get("/", async (req, res) => {
   const userId = req.user.userId;
+  const { search, tag } = req.query;
 
   try {
-    const result = await pool.query(
-      `SELECT l.id, l.url, l.title, l.description, l.image_url, l.created_at,
-              COALESCE(json_agg(t.name) FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
-       FROM links l
-       LEFT JOIN link_tags lt ON lt.link_id = l.id
-       LEFT JOIN tags t ON t.id = lt.tag_id
-       WHERE l.user_id = $1
-       GROUP BY l.id
-       ORDER BY l.created_at DESC`,
-      [userId]
-    );
+    let query = `
+      SELECT l.id, l.url, l.title, l.description, l.image_url, l.created_at,
+             COALESCE(json_agg(t.name) FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
+      FROM links l
+      LEFT JOIN link_tags lt ON lt.link_id = l.id
+      LEFT JOIN tags t ON t.id = lt.tag_id
+      WHERE l.user_id = $1
+    `;
+    const params = [userId];
 
-    res.json(result.rows);
+    if (search) {
+      params.push(`%${search}%`);
+      query += ` AND (l.title ILIKE $${params.length} OR l.description ILIKE $${params.length})`;
+    }
+
+    query += " GROUP BY l.id ORDER BY l.created_at DESC";
+
+    const result = await pool.query(query, params);
+
+    let links = result.rows;
+    if (tag) {
+      links = links.filter((l) => l.tags.includes(tag));
+    }
+
+    res.json(links);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not fetch your links" });
   }
 });
-
 // POST /api/links  → save a new link (with auto-fetched preview + tags)
 router.post("/", async (req, res) => {
   const { url, tags = [] } = req.body;
